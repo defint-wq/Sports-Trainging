@@ -16,6 +16,7 @@
 
 package com.example.sports.ui
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,6 +49,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,6 +58,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -76,9 +79,12 @@ import com.example.sports.ui.theme.SportsTheme
  */
 @Composable
 fun SportsApp(
+    windowSize: WindowWidthSizeClass
 ) {
     val viewModel: SportsViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val activity = LocalContext.current as Activity
+    val isExpanded = windowSize == WindowWidthSizeClass.Expanded
 
     Scaffold(
         topBar = {
@@ -88,30 +94,44 @@ fun SportsApp(
             )
         }
     ) { innerPadding ->
-        if (uiState.isShowingListPage) {
-            SportsList(
+        if (isExpanded) {
+            SportsListAndDetails(
                 sports = uiState.sportsList,
+                selectedSport = uiState.currentSport,
                 onClick = {
                     viewModel.updateCurrentSport(it)
-                    viewModel.navigateToDetailPage()
                 },
-                contentPadding = innerPadding,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = dimensionResource(R.dimen.padding_medium),
-                        start = dimensionResource(R.dimen.padding_medium),
-                        end = dimensionResource(R.dimen.padding_medium),
-                    )
+                onBackPressed = {
+                    activity.finish()
+                },
+                contentPadding = innerPadding
             )
         } else {
-            SportsDetail(
-                selectedSport = uiState.currentSport,
-                contentPadding = innerPadding,
-                onBackPressed = {
-                    viewModel.navigateToListPage()
-                }
-            )
+            if (uiState.isShowingListPage) {
+                SportsList(
+                    sports = uiState.sportsList,
+                    onClick = {
+                        viewModel.updateCurrentSport(it)
+                        viewModel.navigateToDetailPage()
+                    },
+                    contentPadding = innerPadding,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = dimensionResource(R.dimen.padding_medium),
+                            start = dimensionResource(R.dimen.padding_medium),
+                            end = dimensionResource(R.dimen.padding_medium),
+                        )
+                )
+            } else {
+                SportsDetail(
+                    selectedSport = uiState.currentSport,
+                    contentPadding = innerPadding,
+                    onBackPressed = {
+                        viewModel.navigateToListPage()
+                    }
+                )
+            }
         }
     }
 }
@@ -276,7 +296,7 @@ private fun SportsDetail(
         Column(
             modifier = Modifier
                 .padding(
-                    bottom = contentPadding.calculateTopPadding(),
+                    bottom = contentPadding.calculateBottomPadding(),
                     start = contentPadding.calculateStartPadding(layoutDirection),
                     end = contentPadding.calculateEndPadding(layoutDirection)
                 )
@@ -322,11 +342,13 @@ private fun SportsDetail(
                             color = MaterialTheme.colorScheme.inverseOnSurface,
                         )
                         Spacer(Modifier.weight(1f))
-                        Text(
-                            text = stringResource(R.string.olympic_caption),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.inverseOnSurface,
-                        )
+                        if (selectedSport.olympic) {
+                            Text(
+                                text = stringResource(R.string.olympic_caption),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.inverseOnSurface,
+                            )
+                        }
                     }
                 }
             }
@@ -339,6 +361,37 @@ private fun SportsDetail(
                 )
             )
         }
+    }
+}
+
+@Composable
+fun SportsListAndDetails(
+    sports: List<Sport>,
+    selectedSport: Sport,
+    onClick: (Sport) -> Unit,
+    onBackPressed: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    Row(modifier = modifier) {
+        SportsList(
+            sports = sports,
+            onClick = onClick,
+            contentPadding = PaddingValues(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding()
+            ),
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        )
+
+        SportsDetail(
+            selectedSport = selectedSport,
+            onBackPressed = onBackPressed,
+            contentPadding = contentPadding,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

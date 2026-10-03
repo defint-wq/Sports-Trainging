@@ -1,26 +1,11 @@
-Sports - Starter Code
-==================================
-
-Starter code for the Android Basics with Compose: Sports app.
-
-Introduction
-------------
-
-The Sports app is a simple app which displays sports news. This app is used to illustrate 
-the concept of adaptive layout.
-
-Pre-requisites
---------------
-
-You need to know:
-* Experience with Kotlin syntax.
-* How to create and run a project in Android Studio.
-* How to create composable functions
-
-Getting Started
----------------
-
-1. Install Android Studio, if you don't already have it.
-2. Download the sample.
-3. Import the sample into Android Studio.
-4. Build and run the sample.
+Adaptive layouts
+![img.png](img.png)
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
+![img_3.png](img_3.png)
+![img_4.png](img_4.png)
+![img_5.png](img_5.png)
+![img_6.png](img_6.png)
+![img_7.png](img_7.png)
+![img_8.png](img_8.png)
+![img_9.png](img_9.png)
